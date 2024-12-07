@@ -37,35 +37,63 @@ window.addEventListener("scroll", () => {
  * =============================== */
 let totalPrice = 0;
 const maxProducts = 4;
+const selectedProducts = []; // Para almacenar productos seleccionados
 
 function addToCart(button) {
-  const product = button.closest('.product-card'); // Parent product element
-  const price = parseFloat(product.getAttribute('data-price')); // Product price
-  const imageSrc = product.querySelector('img').src; // Product image source
+  const product = button.closest('.product-card'); // Elemento padre del producto
+  const price = parseFloat(product.getAttribute('data-price')); // Precio del producto
+  const name = product.getAttribute('data-name'); // Nombre del producto
+  const imageSrc = product.querySelector('img').src; // Fuente de la imagen
 
   const boxContent = document.getElementById("box-content");
   const cartBox = document.querySelector(".cart-box");
   const productCount = boxContent.childElementCount;
 
-  // Check if cart is full
+  // Verifica si el carrito está lleno
   if (productCount >= maxProducts) {
     cartBox.classList.add("full");
     alert("La caja está llena. No puedes agregar más productos.");
     return;
   }
 
-  // Add product image to cart
+  // Añade la imagen del producto al carrito visual
   const img = document.createElement("img");
   img.src = imageSrc;
   img.alt = "Producto";
   boxContent.appendChild(img);
 
+  // Actualiza el precio total y añade el producto a la lista
   totalPrice += price;
+  selectedProducts.push({ name, price });
   document.getElementById("total-price").textContent = totalPrice.toFixed(2);
 
+  // Desactiva el botón y cambia su texto
   button.disabled = true;
   button.textContent = "Agregado";
 }
+
+function sendToWhatsApp() {
+  if (selectedProducts.length === 0) {
+    alert("No hay productos en la caja para enviar.");
+    return;
+  }
+
+  const phone = "18098999499"; // Número de WhatsApp en formato internacional
+  let message = "Lista de compra:\n\n";
+
+  // Construye la lista de productos
+  selectedProducts.forEach((product, index) => {
+    message += `${index + 1}. ${product.name} - $${product.price.toFixed(2)}\n`;
+  });
+
+  message += `\nTotal: $${totalPrice.toFixed(2)}`;
+
+  // Genera el enlace de WhatsApp y redirige directamente
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+  window.location.href = url; // Redirección directa
+}
+
+
 
 /** ===============================
  * SECTION TOGGLE FUNCTIONALITY
