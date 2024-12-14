@@ -808,6 +808,34 @@ h3 > a { color: inherit; }
   display: block;
 }
 
+/*BTN*/
+.quantity-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.quantity-controls .btn-decrease,
+.quantity-controls .btn-increase {
+  background-color: #edc796;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.quantity-controls .btn-decrease:hover,
+.quantity-controls .btn-increase:hover {
+  background-color: #edc796;
+}
+
+.quantity-controls .quantity {
+  margin: 0 10px;
+  font-size: 1.2rem;
+}
+
+
 /* Pantallas medianas (tabletas) */
 @media (max-width: 1200px) {
   .caja_container {
@@ -867,8 +895,6 @@ h3 > a { color: inherit; }
     width: 45%; /* Ocupa 45% para tener 2 productos por fila */
   }
 }
-
-
 
 /*-----------------------------------*\
  * #MEDIA QUARIES

@@ -348,6 +348,38 @@ h3 > a { color: inherit; }
   pointer-events: all;
 }
 
+/*POLITICA DE PRIVACIDAD*/
+.privacy-policy {
+  padding: 20px;
+  line-height: 1.8;
+  border-radius: 8px;
+  margin: 20px auto;
+  max-width: 800px;
+  color: #333;
+  text-align: left;
+  font-size: 22px;
+}
+
+.privacy-policy h3 {
+  color: #333;
+  margin-top: 20px;
+  font-size: 22px;
+}
+
+.privacy-policy ul {
+  margin-left: 20px;
+  list-style-type: disc;
+  text-align: left;
+}
+
+.privacy-policy ul li {
+  margin-bottom: 10px;
+}
+
+.privacy-policy p {
+  margin-bottom: 10px;
+}
+
 /*-----------------------------------*\
  * #Sobre Nosotros
 \*-----------------------------------*/

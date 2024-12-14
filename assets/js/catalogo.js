@@ -81,16 +81,52 @@ function sendToWhatsApp() {
   const phone = "18098999499"; // Número de WhatsApp en formato internacional
   let message = "Lista de compra:\n\n";
 
-  // Construye la lista de productos
+  // Construye la lista de productos con cantidades
   selectedProducts.forEach((product, index) => {
-    message += `${index + 1}. ${product.name} - $${product.price.toFixed(2)}\n`;
+    const productCard = document.querySelector(`.product-card[data-name="${product.name}"]`);
+    const quantitySpan = productCard.querySelector('.quantity'); // Obtén la cantidad actual
+    const quantity = parseInt(quantitySpan.textContent) || 1; // Usa 1 como valor predeterminado
+
+    message += `${index + 1}. ${product.name} - Cantidad: ${quantity} - $${(product.price * quantity).toFixed(2)}\n`;
   });
 
   message += `\nTotal: $${totalPrice.toFixed(2)}`;
 
-  // Genera el enlace de WhatsApp y redirige directamente
   const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-  window.location.href = url; // Redirección directa
+  window.location.href = url; 
+}
+
+
+/** ===============================
+ * QUANTITY CONTROL
+ * =============================== */
+function updateProductQuantity(button, change) {
+  const productCard = button.closest('.product-card'); 
+  const quantitySpan = productCard.querySelector('.quantity'); 
+  const productPrice = parseFloat(productCard.getAttribute('data-price')); 
+
+  let currentQuantity = parseInt(quantitySpan.textContent);
+  currentQuantity += change;
+
+  // Evita que la cantidad sea menor a 1
+  if (currentQuantity < 1) {
+    alert("La cantidad no puede ser menor a 1.");
+    return;
+  }
+
+  // Actualiza la cantidad
+  quantitySpan.textContent = currentQuantity;
+
+  // Calcula el nuevo precio total
+  const totalPriceElement = document.getElementById("total-price");
+  totalPrice += productPrice * change;
+  totalPriceElement.textContent = totalPrice.toFixed(2);
+}
+
+function resetQuantities() {
+  // Opcional: Resetea todas las cantidades a 1 si es necesario
+  const quantities = document.querySelectorAll('.quantity');
+  quantities.forEach(quantity => quantity.textContent = "1");
 }
 
 
@@ -180,5 +216,64 @@ document.addEventListener("DOMContentLoaded", () => {
       targetSection.style.display = "block";
       button.classList.add("active");
     });
+  });
+});
+
+
+// Crea y configura el modal al inicio
+const modal = document.createElement('div');
+modal.id = 'image-modal';
+modal.style.position = 'fixed';
+modal.style.top = '0';
+modal.style.left = '0';
+modal.style.width = '100vw';
+modal.style.height = '100vh';
+modal.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+modal.style.display = 'none';
+modal.style.alignItems = 'center';
+modal.style.justifyContent = 'center';
+modal.style.zIndex = '1000';
+
+// Contenedor de la imagen dentro del modal
+const modalImage = document.createElement('img');
+modalImage.style.maxWidth = '90%';
+modalImage.style.maxHeight = '90%';
+
+// Botón para cerrar el modal
+const closeButton = document.createElement('button');
+closeButton.textContent = 'X';
+closeButton.style.position = 'absolute';
+closeButton.style.top = '20px';
+closeButton.style.right = '20px';
+closeButton.style.backgroundColor = 'white';
+closeButton.style.border = 'none';
+closeButton.style.padding = '10px';
+closeButton.style.cursor = 'pointer';
+
+closeButton.addEventListener('click', () => {
+  modal.style.display = 'none';
+});
+
+// Añade los elementos al modal
+modal.appendChild(modalImage);
+modal.appendChild(closeButton);
+document.body.appendChild(modal);
+
+// Función para mostrar el modal con la imagen del producto
+function showImageModal(button) {
+  const product = button.closest('.product-card'); // Encuentra la tarjeta del producto
+  const image = product.querySelector('p > img'); // Selecciona la imagen dentro del <p>
+  if (image) {
+    modalImage.src = image.src; // Usa la fuente de la imagen seleccionada
+    modal.style.display = 'flex'; // Muestra el modal
+  } else {
+    alert('Imagen no encontrada'); // Manejo de error si no hay imagen
+  }
+}
+
+// Asigna la función a los botones de "Quick view"
+document.querySelectorAll('.card-action-btn[aria-label="Quick view"]').forEach(button => {
+  button.addEventListener('click', function () {
+    showImageModal(this);
   });
 });
