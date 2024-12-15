@@ -106,6 +106,7 @@ html {
 body {
   background: var(--white);
   padding-block: 70px;
+  overflow-x: hidden;
 }
 
 /*-----------------------------------*\
