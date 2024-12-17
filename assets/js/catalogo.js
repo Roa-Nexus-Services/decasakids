@@ -72,28 +72,53 @@ function addToCart(button) {
   button.textContent = "Agregado";
 }
 
-function sendToWhatsApp() {
+function sendToGoogleSheets(event) {
+  event.preventDefault(); // Evita la recarga de la página
+
   if (selectedProducts.length === 0) {
     alert("No hay productos en la caja para enviar.");
     return;
   }
 
-  const phone = "18098999499"; // Número de WhatsApp en formato internacional
-  let message = "Lista de compra:\n\n";
+  const companyName = document.getElementById("companyName").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const phone = document.getElementById("phone").value.trim();
 
-  // Construye la lista de productos con cantidades
-  selectedProducts.forEach((product, index) => {
-    const productCard = document.querySelector(`.product-card[data-name="${product.name}"]`);
-    const quantitySpan = productCard.querySelector('.quantity'); // Obtén la cantidad actual
-    const quantity = parseInt(quantitySpan.textContent) || 1; // Usa 1 como valor predeterminado
+  if (!companyName || !email || !phone) {
+    alert("Por favor, completa todos los campos.");
+    return;
+  }
 
-    message += `${index + 1}. ${product.name} - Cantidad: ${quantity} - $${(product.price * quantity).toFixed(2)}\n`;
-  });
+  const orderDetails = {
+    companyName,
+    email,
+    phone,
+    products: selectedProducts,
+    totalPrice: totalPrice.toFixed(2),
+    date: new Date().toLocaleString(),
+  };
 
-  message += `\nTotal: $${totalPrice.toFixed(2)}`;
+  const url = 'https://script.google.com/macros/s/AKfycbz3TUytxCSBsPZGsXFD_7twrEeQDQoFnMA2tFKwgLFlpuTM09u9iLNNylm_oS75AfOE/exec'; // URL de Google Apps Script
 
-  const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-  window.location.href = url; 
+  fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(orderDetails),
+    mode: 'no-cors' // Modo no-cors
+  })
+    .then(() => {
+      alert("Pedido enviado con éxito!");
+      document.getElementById("order-form").reset();
+      selectedProducts.length = 0;
+      totalPrice = 0;
+      document.getElementById("total-price").textContent = "0.00";
+      document.getElementById("box-content").innerHTML = '';
+      closeModal(); // Cierra el modal
+    })
+    .catch(error => {
+      console.error("Error al enviar el pedido:", error);
+      alert("Hubo un error al enviar el pedido. Por favor, intenta de nuevo.");
+    });
 }
 
 
@@ -128,6 +153,59 @@ function resetQuantities() {
   const quantities = document.querySelectorAll('.quantity');
   quantities.forEach(quantity => quantity.textContent = "1");
 }
+
+/** ===============================
+ * MODAL CONTROL
+ * =============================== */
+function openModal() {
+  const modal = document.getElementById("purchase-modal");
+
+  if (!modal) {
+      console.error("El modal no existe en el DOM.");
+      return;
+  }
+
+  // Generar la lista de productos seleccionados
+  const modalProducts = document.getElementById("modal-products");
+  modalProducts.innerHTML = ""; // Limpiar el contenido previo
+
+  if (selectedProducts.length === 0) {
+      modalProducts.innerHTML = "<p>No hay productos seleccionados.</p>";
+  } else {
+      const ul = document.createElement("ul"); // Crear una lista no ordenada
+      ul.style.listStyleType = "none"; // Opcional: sin estilo de lista
+
+      selectedProducts.forEach(product => {
+          const productCard = document.querySelector(`.product-card[data-name="${product.name}"]`);
+          const quantitySpan = productCard.querySelector('.quantity'); // Obtener cantidad actual
+          const quantity = parseInt(quantitySpan.textContent) || 1; // Si no hay cantidad, asumir 1
+
+          const li = document.createElement("li"); // Crear un elemento de lista
+          const subtotal = (product.price * quantity).toFixed(2); // Subtotal del producto
+
+          li.textContent = `${product.name} - Cantidad: ${quantity} - Precio unitario: $${product.price.toFixed(2)} - Subtotal: $${subtotal}`;
+          ul.appendChild(li); // Añadir el elemento a la lista
+      });
+
+      modalProducts.appendChild(ul); // Añadir la lista al modal
+  }
+
+  // Mostrar el modal
+  modal.style.display = "block";
+}
+
+function closeModal() {
+  const modal = document.getElementById("purchase-modal");
+  modal.style.display = "none";
+}
+
+// Cierra el modal al hacer clic fuera de él
+window.onclick = function(event) {
+  const modal = document.getElementById("purchase-modal ");
+  if (event.target === modal) {
+    modal.style.display = "none";
+  }
+};
 
 
 
